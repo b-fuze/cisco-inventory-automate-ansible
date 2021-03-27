@@ -1,0 +1,26 @@
+# vim: set ft=yaml.ansible:
+---
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: backup config
+      ios_command:
+        commands:
+          - show version
+          - show ip interface brief
+          - show running-config
+          - show vrf
+          - show cdp neighbors
+          - show ip protocol
+          - show log
+          - show log
+          - show clock
+      register: config_out
+
+    - name: store config
+      copy:
+        content: "{{ config_out.stdout | join('\n') }}"
+        dest: "{{ inventory_dir }}/out/config/{{ inventory_hostname }}.config"
+      delegate_to: 127.0.0.1
+
